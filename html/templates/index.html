@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Risk Type Dynamic Fields</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style type="text/css">
+    form{
+      margin: 0 auto;
+      display:block;
+      width: 300px;
+    }
+    </style>
+  </head>
+  <body>
+
+  <form action="#" method="post" id="form">
+    <h3 id="title"></h3>  
+  </form>
+
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script type="text/javascript">
+
+    $('body').on('focus',".datepicker_recurring_start", function(){
+        $(this).datepicker();
+    });
+
+    $.ajax({
+      method: "GET",
+      url: "http://127.0.0.1:8000/risktypes/1/?format=json"
+    })
+    .done(function( data ) {
+
+      $("#title").html(data.name);
+
+      $.ajax({
+        method: "GET",
+        url: "http://127.0.0.1:8000/risktypefields/"+data.id+"/?format=json"
+      })
+      .done(function( response ) {
+        $.each(response, function( index, value ) {
+          var type = "text";
+          var date = "";
+          if(value.fieldtype == "number"){
+            type="number";
+          }
+          if(value.fieldtype == "date"){
+            date="datepicker_recurring_start";
+          }
+
+          var field = "<input type='"+type+"' class='"+date+"'>";
+          if(value.fieldtype == "enum"){
+            field = "<select><option>Male</option><option>Female</option></select>"
+          }
+          $( "#form" ).append( "<div><label>"+value.fieldname+": </label><br>"+field+"</div>" );
+        });
+
+        $( "#form" ).append("<br><div><input type=\"submit\" value=\"Submit\"></button></div>");
+      });
+    });
+  </script>
+  </body>
+</html>
